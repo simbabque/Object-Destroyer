@@ -1,0 +1,10 @@
+Revision history for Perl extension Object::Destroyer
+
+1.02 Fri  6 Oct 2006
+	- Moving to new SVN repository
+	- Cleaning up tests
+	- Updating to Module::Install 0.64
+	- Moving to production version
+
+0.1  Sun Jan 11 2004
+	- original version
