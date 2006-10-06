@@ -8,8 +8,9 @@ BEGIN {
 	$^W = 1;
 }
 
-use Test::More tests => 19;
+use Test::More tests => 17;
 use Scalar::Util 'blessed';
+use Object::Destroyer;
 
 # Make sure a plain Foo object pair behaves as expected
 is( $Foo::destroy_counter, 0, 'DESTROY counter returns expected value' );

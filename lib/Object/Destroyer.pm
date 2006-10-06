@@ -4,18 +4,14 @@ package Object::Destroyer;
 
 use 5.005;
 use strict;
-use UNIVERSAL ();
-use Carp 'croak';
+use UNIVERSAL    ();
+use Carp         ();
 use Scalar::Util ();
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '0.1';
+	$VERSION = '1.02';
 }
-
-
-
-
 
 sub new {
 	if ( ref $_[0] ) {
@@ -29,12 +25,12 @@ sub new {
 	# *ahem*... where were we...
 	my $destroyer = shift;
 	my $class = Scalar::Util::blessed($_[0])
-		or croak "Did not pass Object::Destroyer->new an object";
+		or Carp::croak "Did not pass Object::Destroyer->new an object";
 
 	# The encased object must have a DESTROY method we can call.
 	# Otherwise there's no point in doing this.
 	unless ( UNIVERSAL::can( $class, 'DESTROY' ) ) {
-		croak "Object::Destroyer requires that $class has a DESTROY method";
+		Carp::croak "Object::Destroyer requires that $class has a DESTROY method";
 	}
 
 	# Create the object
@@ -57,7 +53,7 @@ sub AUTOLOAD {
 
 	# Bad method call... since this is probably going to die
 	# anyway, we don't care about appearing in the call stack.
-	croak "Can't locate object method \"$method\" via package \"" . ref($_[0]) . '"';
+	Carp::croak "Can't locate object method \"$method\" via package \"" . ref($_[0]) . '"';
 }
 
 # Use our automatically triggered DESTROY to call the
