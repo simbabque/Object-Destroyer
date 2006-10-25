@@ -9,7 +9,7 @@ use Scalar::Util ();
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '2.0';
+	$VERSION = '1.99';
 }
 
 sub new {

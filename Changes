@@ -1,6 +1,7 @@
 Revision history for Perl extension Object::Destroyer
 
-2.0  Tue Oct 17 2006
+1.99 Tue Oct 17 2006
+	- Complete overhaul by Igor Gariev to expand its functionality
 	- Added support for explicit clean-up method name
 	- Added support for clean-up code by code reference 
 	- Added support for AUTOLOAD'ed methods of wrapped objects
