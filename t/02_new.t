@@ -11,7 +11,7 @@ BEGIN {
 }
 
 use Test::More tests => 19;
-use Object::Destroyer 2.0;
+use Object::Destroyer 1.99;
 
 my $foo = Foo->new;
 my $bar = Bar->new();

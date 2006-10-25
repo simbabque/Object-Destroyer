@@ -11,7 +11,7 @@ BEGIN {
 }
 
 use Test::More tests => 33;
-use Object::Destroyer 2.0;
+use Object::Destroyer 1.99;
 
 my $foo = Foo->new;
 my $sentry = Object::Destroyer->new($foo, 'release');
