@@ -1,5 +1,10 @@
 Revision history for Perl extension Object::Destroyer
 
+2.0  Tue Oct 17 2006
+	- Added support for explicit clean-up method name
+	- Added support for clean-up code by code reference 
+	- Added support for AUTOLOAD'ed methods of wrapped objects
+
 1.02 Fri  6 Oct 2006
 	- Moving to new SVN repository
 	- Cleaning up tests

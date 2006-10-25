@@ -8,9 +8,10 @@ BEGIN {
 	$^W = 1;
 }
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 ok( $] >= 5.005, "Your perl is new enough" );
 use_ok('Object::Destroyer');
+use_ok('Object::Destroyer', 2.0);
 
 exit(0);
