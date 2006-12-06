@@ -5,54 +5,69 @@ package Object::Destroyer;
 use 5.005;
 use strict;
 use Carp         ();
-use Scalar::Util ();
+##use Scalar::Util ();
 
 use vars qw{$VERSION};
 BEGIN {
-	$VERSION = '1.99';
+    $VERSION = '2.00';
+}
+
+if (eval {require Scalar::Util}) {
+    Scalar::Util->import('blessed');    
+}
+else{
+    *blessed = sub {
+        my $ref = ref($_[0]);
+        return $ref 
+            if $ref &&  ($ref ne 'SCALAR') && ($ref ne 'ARRAY') && 
+                        ($ref ne 'HASH') && ($ref ne 'CODE') &&
+                        ($ref ne 'REF') && ($ref ne 'GLOB') &&
+                        ($ref ne 'LVALUE');
+        return;
+    }
 }
 
 sub new {
-	if (ref $_[0]) {
-		# This is a method called on an existing
-		# Destroyer, and should actually be passed through
-		# to the encased object via the AUTOLOAD
-		$Object::Destroyer::AUTOLOAD = '::new';
-		goto &AUTOLOAD;
-	}
+    if (ref $_[0]) {
+        # This is a method called on an existing
+        # Destroyer, and should actually be passed through
+        # to the encased object via the AUTOLOAD
+        $Object::Destroyer::AUTOLOAD = '::new';
+        goto &AUTOLOAD;
+    }
 
-	# *ahem*... where were we...
-	my $destroyer = shift;
-	my $ref = shift || ''; 
-	my $self = {};
-	
-	if (ref($ref) eq 'CODE') {
-		##
-		## Object::Destroyer->new( sub {...} )
-		##
-		$self->{code} = $ref;
-	}
-	elsif (my $class = Scalar::Util::blessed($ref)) {
-		##
-		## Object::Destroyer->new( $object, 'optional_method' )
-		##
-		my $method = shift || 'DESTROY';
-		Carp::croak("Second argument to constructor must be a method name")
-			if ref($method);
-		Carp::croak("Object::Destroyer requires that $class has a $method method")
-			unless $class->can($method); 
-		$self->{object} = $ref;
-		$self->{method} = $method;
-	}
-	else{
-		##
-		## And what is this?
-		##
-		Carp::croak("You should pass an object or code reference to constructor");
-	}
-	Carp::croak("Extra arguments to constructor") if @_;
+    # *ahem*... where were we...
+    my $destroyer = shift;
+    my $ref = shift || ''; 
+    my $self = {};
+    
+    if (ref($ref) eq 'CODE') {
+        ##
+        ## Object::Destroyer->new( sub {...} )
+        ##
+        $self->{code} = $ref;
+    }
+    elsif (my $class = blessed($ref)) {
+        ##
+        ## Object::Destroyer->new( $object, 'optional_method' )
+        ##
+        my $method = shift || 'DESTROY';
+        Carp::croak("Second argument to constructor must be a method name")
+            if ref($method);
+        Carp::croak("Object::Destroyer requires that $class has a $method method")
+            unless $class->can($method); 
+        $self->{object} = $ref;
+        $self->{method} = $method;
+    }
+    else{
+        ##
+        ## And what is this?
+        ##
+        Carp::croak("You should pass an object or code reference to constructor");
+    }
+    Carp::croak("Extra arguments to constructor") if @_;
 
-	return bless $self, $destroyer;
+    return bless $self, $destroyer;
 }
 
 # Hand off general method calls to the encased object.
@@ -60,61 +75,80 @@ sub new {
 # would leave us in the call stack, find the actual subroutine
 # that will be executed, and goto that directly.
 sub AUTOLOAD {
-	my $self = shift;
-	
-	my ($method) = $Object::Destroyer::AUTOLOAD =~ /^.*::(.*)$/;
-	if (my $object = $self->{object}) {
-		if (my $function = $object->can($method)) {
-			##
-			## Rearrange stack - instead of 
-			## $object_destroy->method(@params)
-			## make it look like
-			## $underlying_object->method(@params)
-			##
-			unshift @_, $object;
-			goto &$function;
-		}
-		elsif ($object->can("AUTOLOAD")) {
-			##
-			## We can't just goto to AUTOLOAD method in unknown
-			## package (it may be in base class of $object).
-			## We have to preserve the method's name.
-			## 
-			return (wantarray) ?
-				( $object->$method(@_) ) :
-				scalar( $object->$method(@_) );
-		}
-		else{
-			##
-			## Probably this is a caller's error
-			##
-			my $package = ref $self->{object};
-			Carp::croak(qq[Can't locate object method "$method" via package "$package"]);
-		}
-	}
-	
-	##
-	## No object at all. Either we have a $coderef instead of object
-	## or DESTROY has been called already. 
-	##
-	Carp::croak("Can't locate object to call method '$method'");
+    my $self = shift;
+    
+    my ($method) = $Object::Destroyer::AUTOLOAD =~ /^.*::(.*)$/;
+    if (my $object = $self->{object}) {
+        if (my $function = $object->can($method)) {
+            ##
+            ## Rearrange stack - instead of 
+            ## $object_destroy->method(@params)
+            ## make it look like
+            ## $underlying_object->method(@params)
+            ##
+            unshift @_, $object;
+            goto &$function;
+        }
+        elsif ($object->can("AUTOLOAD")) {
+            ##
+            ## We can't just goto to AUTOLOAD method in unknown
+            ## package (it may be in base class of $object).
+            ## We have to preserve the method's name.
+            ## 
+            if (wantarray) {
+                ## List context
+                return $object->$method(@_);
+            }
+            elsif (defined wantarray) {
+                ## Scalar context
+                return scalar $object->$method(@_);
+            }
+            else {
+                ## Void context
+                $object->$method(@_);
+            }
+        }
+        else{
+            ##
+            ## Probably this is a caller's error
+            ##
+            my $package = ref $self->{object};
+            Carp::croak(qq[Can't locate object method "$method" via package "$package"]);
+        }
+    }
+    
+    ##
+    ## No object at all. Either we have a $coderef instead of object
+    ## or DESTROY has been called already. 
+    ##
+    Carp::croak("Can't locate object to call method '$method'");
 }
+
+sub dismiss{
+    my $self = shift;
+    
+    $self->{dismissed} = 1;
+}
+
 ##
 ## Use our automatically triggered DESTROY to call the
 ## non-automatically triggered clean-up method of the encased object
 ##
 sub DESTROY {
-	my $self = shift;
-	
-	if ( $self->{code} ) {
-		$self->{code}->();
-	}
-	elsif ( my $object = $self->{object} ) {
-		my $method = $self->{method};
-		$object->$method();
-	}
-	
-	%$self = ();
+    my $self = shift;
+
+    if ($self->{dismissed}) {   
+        ## do nothing
+    }
+    elsif ( $self->{code} ) {
+        $self->{code}->();
+    }
+    elsif ( my $object = $self->{object} ) {
+        my $method = $self->{method};
+        $object->$method();
+    }
+    
+    %$self = ();
 }
 
 ##
@@ -125,16 +159,16 @@ sub DESTROY {
 ## and underlying object's class
 ##
 sub isa { 
-	my $self = shift;
-	my $class = shift;
+    my $self = shift;
+    my $class = shift;
 
-	return 	$class eq __PACKAGE__ ||
-		($self->{object} && $self->{object}->isa($class));
+    return  $class eq __PACKAGE__ ||
+        ($self->{object} && $self->{object}->isa($class));
 }
 
 sub can { 
-	my $self = shift;
-	return $self->{object}->can(@_) if $self->{object}; 
+    my $self = shift;
+    return $self->{object}->can(@_) if $self->{object}; 
 }
 
 1;
@@ -228,8 +262,8 @@ the object to be destroyed)
   
     # Continue with the Document as normal
     if ($document->author == $me) {
-    	# Normally this would have leaked the document
-    	return new Error("You already own the Document");
+        # Normally this would have leaked the document
+        return new Error("You already own the Document");
     }
     
     $document->change_author($me);
@@ -293,11 +327,11 @@ Take the following example class
   }
   
   sub release {
-  	my $self = shift;
-  	foreach (values %$self) {
-  		$_->DESTROY if ref $_ eq 'My::Tree::Node';
-  	}
-  	%$self = ();
+    my $self = shift;
+    foreach (values %$self) {
+        $_->DESTROY if ref $_ eq 'My::Tree::Node';
+    }
+    %$self = ();
   }
 
 We might use the class in something like this
@@ -372,14 +406,26 @@ DESTROY an object even though it is not needed. The DESTROY call will be
 accepted and dealt with as it is called on the encased object.
 
 
+=item dismiss
+
+
+  $sentry->dismiss;
+
+If you have changed your mind and you don't want Destroyer object to do 
+its job, dismiss it. You may continue to use it as a wrapper, though. 
+ 
+
 =back
 
 =head1 SEE ALSO
 
 Another option for dealing with circular references are C<weak references> 
-(stable since Perl 5.8.0, see L<Scalar::Util>). See also L<GTop::Mem > 
+(stable since Perl 5.8.0, see L<Scalar::Util>). See also L<GTop::Mem> 
 and L<Devel::Monitor> for monitoring memory leaks.
 The latter module contains a discussion on object desing with weak references. 
+
+For lexically scoped resource management, see also L<Scope::Guard>, 
+L<Sub::ScopeFinalizer> and L<Hook::Scope>.
 
 =head1 SUPPORT
 

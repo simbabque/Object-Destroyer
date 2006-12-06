@@ -6,12 +6,12 @@
 
 use strict;
 BEGIN {
-	$|  = 1;
-	$^W = 1;
+    $|  = 1;
+    $^W = 1;
 }
 
-use Test::More tests => 33;
-use Object::Destroyer 1.99;
+use Test::More tests => 34;
+use Object::Destroyer 2.00;
 
 my $foo = Foo->new;
 my $sentry = Object::Destroyer->new($foo, 'release');
@@ -60,6 +60,10 @@ is(scalar($sentry->test_context), -1);
 is_deeply([$foo->test_context], [1, 2]);
 is_deeply([$sentry->test_context], [1, 2]);
 
+$_ = 0;
+$foo->test_context; ## void context
+is($_, 1);
+
 ##
 ## Test that $sentry->new will pass to Foo->new
 ##
@@ -89,38 +93,39 @@ use vars qw{$destroy_counter @ISA};
 BEGIN { $destroy_counter = 0; @ISA = 'Bar' };
 
 sub new {
-	my $class = ref $_[0] ? ref shift : shift;
-	my $self = bless {}, $class;
-	$self->{self} = $self; ## This is a circular reference
-	return $self;
+    my $class = ref $_[0] ? ref shift : shift;
+    my $self = bless {}, $class;
+    $self->{self} = $self; ## This is a circular reference
+    return $self;
 }
 
 sub self_test{
-	my $self = shift;
-	return $self==$self->{self};
+    my $self = shift;
+    return $self==$self->{self};
 }
 
 sub params_count{
-	my $self = shift;
-	return scalar(@_);
+    my $self = shift;
+    return scalar(@_);
 }
 
 sub hello { 
-	shift; 
-	return (@_) ? "Hello $_[0]!" : "Hello World!" 
+    shift; 
+    return (@_) ? "Hello $_[0]!" : "Hello World!" 
 }
 
 sub test_context{ 
-	return (wantarray) ? (1, 2) : -1; 
+    return  (wantarray) ? (1, 2) : 
+            (defined wantarray) ? -1 : ++$_;
 }
 
 sub DESTROY { 
-	$destroy_counter++;
+    $destroy_counter++;
 }
 
 sub release{
-	my $self = shift;
-	undef $self->{self};
+    my $self = shift;
+    undef $self->{self};
 }
 
 package Bar;
@@ -128,19 +133,19 @@ sub bar {}
 
 package Buzz;
 sub new{
-	my $class = shift;
-	return bless {}, ref $class || $class;
+    my $class = shift;
+    return bless {}, ref $class || $class;
 }
 use vars '$AUTOLOAD';
 
 sub AUTOLOAD{
-	my $self = shift;
-	my $repeat_number = shift || 2;
-	
-	my ($method) = $AUTOLOAD =~ /.*::(.*)$/;
-	return (wantarray) ?
-		($method) x $repeat_number :
-		$method   x $repeat_number; 
+    my $self = shift;
+    my $repeat_number = shift || 2;
+    
+    my ($method) = $AUTOLOAD =~ /.*::(.*)$/;
+    return (wantarray) ?
+        ($method) x $repeat_number :
+        $method   x $repeat_number; 
 }
 
 sub DESTROY{

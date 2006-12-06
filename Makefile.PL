@@ -1,11 +1,10 @@
 use strict;
 use inc::Module::Install;
 
-name         	'Object-Destroyer';
-all_from      	'lib/Object/Destroyer.pm';
-requires	'Carp'		=> 0; 
-requires	'Scalar::Util'	=> 0;
-build_requires 	'Test::More'	=> '0.42';
+name            'Object-Destroyer';
+all_from        'lib/Object/Destroyer.pm';
+requires        'Carp'          => 0; 
+build_requires  'Test::More'    => '0.42';
 
 WriteAll();
 

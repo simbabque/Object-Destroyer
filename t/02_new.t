@@ -6,12 +6,12 @@
 
 use strict;
 BEGIN {
-	$|  = 1;
-	$^W = 1;
+    $|  = 1;
+    $^W = 1;
 }
 
 use Test::More tests => 19;
-use Object::Destroyer 1.99;
+use Object::Destroyer 2.00;
 
 my $foo = Foo->new;
 my $bar = Bar->new();
@@ -71,8 +71,8 @@ like( $@, qr/^You should pass an object or code reference to constructor at .*/ 
 package Foo;
 
 sub new{
-	my $self = shift;
-	return bless {}, ref $self || $self;
+    my $self = shift;
+    return bless {}, ref $self || $self;
 }
 
 sub hello { }
@@ -83,8 +83,8 @@ sub DESTROY { }
 package Bar;
 
 sub new{
-	my $self = shift;
-	return bless {}, ref $self || $self;
+    my $self = shift;
+    return bless {}, ref $self || $self;
 }
 
 sub delete{}
