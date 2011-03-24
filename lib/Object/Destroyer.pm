@@ -9,13 +9,12 @@ use Carp         ();
 
 use vars qw{$VERSION};
 BEGIN {
-    $VERSION = '2.00';
+    $VERSION = '2.01';
 }
 
-if (eval {require Scalar::Util}) {
+if ( eval { require Scalar::Util } ) {
     Scalar::Util->import('blessed');    
-}
-else{
+} else {
     *blessed = sub {
         my $ref = ref($_[0]);
         return $ref 
@@ -28,7 +27,7 @@ else{
 }
 
 sub new {
-    if (ref $_[0]) {
+    if ( ref $_[0] ) {
         # This is a method called on an existing
         # Destroyer, and should actually be passed through
         # to the encased object via the AUTOLOAD
@@ -41,13 +40,12 @@ sub new {
     my $ref = shift || ''; 
     my $self = {};
     
-    if (ref($ref) eq 'CODE') {
+    if ( ref($ref) eq 'CODE' ) {
         ##
         ## Object::Destroyer->new( sub {...} )
         ##
         $self->{code} = $ref;
-    }
-    elsif (my $class = blessed($ref)) {
+    } elsif ( my $class = blessed($ref) ) {
         ##
         ## Object::Destroyer->new( $object, 'optional_method' )
         ##
@@ -58,8 +56,7 @@ sub new {
             unless $class->can($method); 
         $self->{object} = $ref;
         $self->{method} = $method;
-    }
-    else{
+    } else {
         ##
         ## And what is this?
         ##
@@ -88,8 +85,7 @@ sub AUTOLOAD {
             ##
             unshift @_, $object;
             goto &$function;
-        }
-        elsif ($object->can("AUTOLOAD")) {
+        } elsif ( $object->can("AUTOLOAD") ) {
             ##
             ## We can't just goto to AUTOLOAD method in unknown
             ## package (it may be in base class of $object).
@@ -98,17 +94,14 @@ sub AUTOLOAD {
             if (wantarray) {
                 ## List context
                 return $object->$method(@_);
-            }
-            elsif (defined wantarray) {
+            } elsif ( defined wantarray ) {
                 ## Scalar context
                 return scalar $object->$method(@_);
-            }
-            else {
+            } else {
                 ## Void context
                 $object->$method(@_);
             }
-        }
-        else{
+        } else {
             ##
             ## Probably this is a caller's error
             ##
@@ -125,9 +118,7 @@ sub AUTOLOAD {
 }
 
 sub dismiss{
-    my $self = shift;
-    
-    $self->{dismissed} = 1;
+    $_[0]->{dismissed} = 1;
 }
 
 ##
@@ -137,17 +128,15 @@ sub dismiss{
 sub DESTROY {
     my $self = shift;
 
-    if ($self->{dismissed}) {   
+    if ( $self->{dismissed} ) {
         ## do nothing
-    }
-    elsif ( $self->{code} ) {
+    } elsif ( $self->{code} ) {
         $self->{code}->();
-    }
-    elsif ( my $object = $self->{object} ) {
+    } elsif ( my $object = $self->{object} ) {
         my $method = $self->{method};
         $object->$method();
     }
-    
+
     %$self = ();
 }
 
@@ -159,7 +148,7 @@ sub DESTROY {
 ## and underlying object's class
 ##
 sub isa { 
-    my $self = shift;
+    my $self  = shift;
     my $class = shift;
 
     return  $class eq __PACKAGE__ ||
@@ -383,18 +372,16 @@ don't use a wrapper and just use the standalone cleaners.
 
 =item new
 
-
   my $sentry = Object::Destroyer->new( $object );
   my $sentry = Object::Destroyer->new( $object, 'method_name' );
   my $sentry = Object::Destroyer->new( $code_reference );
- 
+
 The C<new> constructor takes as arguments either a single blessed object with 
 an optional name of the method to be called, or a refernce to code to be executed.
 If the method name is not specified, the C<DESTROY> method is assumed.
 The constructor will die if the object passed to it does not have the specified method.
 
 =item DESTROY
-
 
   $sentry->DESTROY;
   undef $sentry;
@@ -405,15 +392,12 @@ legacy cases relating to Wrappers, where a user expects to have to manually
 DESTROY an object even though it is not needed. The DESTROY call will be 
 accepted and dealt with as it is called on the encased object.
 
-
 =item dismiss
-
 
   $sentry->dismiss;
 
 If you have changed your mind and you don't want Destroyer object to do 
 its job, dismiss it. You may continue to use it as a wrapper, though. 
- 
 
 =back
 
@@ -437,11 +421,13 @@ For other issues, or commercial enhancement or support, contact the Adam Kennedy
 
 =head1 AUTHORS
 
-Adam Kennedy E<lt>adamk@cpan.orgE<gt> and Igor Gariev E<lt>gariev@hotmail.comE<gt>
+Adam Kennedy E<lt>adamk@cpan.orgE<gt>
+
+Igor Gariev E<lt>gariev@hotmail.comE<gt>
 
 =head1 COPYRIGHT
 
-Copyright 2004 - 2006 Adam Kennedy.
+Copyright 2004 - 2011 Adam Kennedy.
 
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.

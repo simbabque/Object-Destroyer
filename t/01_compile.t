@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 # Load testing for Object::Destroyer
 
@@ -8,10 +8,7 @@ BEGIN {
     $^W = 1;
 }
 
-use Test::More tests => 3;
+use Test::More tests => 2;
 
-ok( $] >= 5.005, "Your perl is new enough" );
-use_ok('Object::Destroyer');
-use_ok('Object::Destroyer', 2.00);
-
-exit(0);
+use_ok( 'Object::Destroyer' );
+use_ok( 'Object::Destroyer' => 2.01 );

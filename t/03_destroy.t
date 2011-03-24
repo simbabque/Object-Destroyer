@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 ##
 ## Tests of main functionality of Object::Destroyer - 
@@ -14,28 +14,27 @@ BEGIN {
 use Test::More tests => 31;
 use Object::Destroyer;
 
-
 ##
 ## Make sure a Foo object behaves as expected
 ##
 is( $Foo::destroy_counter, 0, 'Start value' );
 
-{
+SCOPE: {
 	##
 	## This object will not be destroyed automatically
 	##
 	my $foo = Foo->new;
 	is( $Foo::destroy_counter, 0, 'No auto destroy of Foo objects' );
-}	
+}
 
-{
+SCOPE: {
 	##
 	## This $foo is destroyed manually 
 	##
 	my $foo = Foo->new;
 	$foo->DESTROY;
 	is( $Foo::destroy_counter, 1, 'Manually called DESTROY' );
-}	
+}
 is( $Foo::destroy_counter, 2, 'Auto called DESTROY after leaving the scope' );
 
 
@@ -47,7 +46,7 @@ is( $Foo::destroy_counter, 2, 'Auto called DESTROY after leaving the scope' );
 ## Test of default 'DESTROY' method
 ## It's called twice - 1st by Object::Destroyer, 2nd by Perl gc!
 ##
-{
+SCOPE: {
 	my $foo = Foo->new;
 	my $sentry = Object::Destroyer->new($foo);
 	@Foo::called_method = ();
@@ -58,7 +57,7 @@ is_deeply( \@Foo::called_method, ['DESTROY', 'DESTROY'] );
 ##
 ## Test that the specified method is called indeed
 ##
-{
+SCOPE: {
 	my $foo = Foo->new;
 	my $sentry = Object::Destroyer->new($foo, 'release');
 	@Foo::called_method = ();
@@ -66,7 +65,7 @@ is_deeply( \@Foo::called_method, ['DESTROY', 'DESTROY'] );
 is( $Foo::destroy_counter, 5, 'release called by Object::Destroyer' );
 is_deeply( \@Foo::called_method, ['release', 'DESTROY'] );
 
-{
+SCOPE: {
 	my $foo = Foo->new;
 	my $sentry = Object::Destroyer->new($foo, 'delete');
 	@Foo::called_method = ();
@@ -79,7 +78,7 @@ is_deeply( \@Foo::called_method, ['delete', 'DESTROY'] );
 ## Test manual clean-up of the enclosed object
 ## by $sentry->DESTROY or undef($sentry)
 ##
-{
+SCOPE: {
 	my $foo = Foo->new;
 	my $sentry = Object::Destroyer->new($foo);
 	is( $Foo::destroy_counter, 6, 'nothing changed' );
@@ -88,7 +87,7 @@ is_deeply( \@Foo::called_method, ['delete', 'DESTROY'] );
 }
 is( $Foo::destroy_counter, 8, 'Foo->DESTROY by Perl gc' );
 
-{
+SCOPE: {
 	my $foo = Foo->new;
 	my $sentry = Object::Destroyer->new($foo, 'release');
 	is( $Foo::destroy_counter, 8, 'nothing changed' );
@@ -97,7 +96,7 @@ is( $Foo::destroy_counter, 8, 'Foo->DESTROY by Perl gc' );
 }
 is( $Foo::destroy_counter, 9, 'Foo->DESTROY by Perl gc' );
 
-{
+SCOPE: {
 	my $foo = Foo->new;
 	my $sentry = Object::Destroyer->new($foo);
 	is( $Foo::destroy_counter, 9, 'nothing changed' );
@@ -106,7 +105,7 @@ is( $Foo::destroy_counter, 9, 'Foo->DESTROY by Perl gc' );
 }
 is( $Foo::destroy_counter, 11, 'Foo->DESTROY by Perl gc' );
 
-{
+SCOPE: {
 	my $foo = Foo->new;
 	my $sentry = Object::Destroyer->new($foo, 'release');
 	is( $Foo::destroy_counter, 11, 'nothing changed' );
@@ -119,19 +118,18 @@ is( $Foo::destroy_counter, 12, 'Foo->DESTROY by Perl gc' );
 ##
 ## Test anonymous subrotine calls
 ##
-{
+SCOPE: {
 	my $test = 0;
-	{
+	SCOPE: {
 		my $sentry = Object::Destroyer->new( sub{$test=1} );
 		is($test, 0);
 	}
 	is($test, 1);
-	for (1..10) {
+	for ( 1 .. 10 ) {
 		my $sentry = Object::Destroyer->new( sub{$test++} );
 	}
 	is($test, 11);
 }
-
 
 ##
 ## Anonymous subrotine destroys an object not capable of auto-destroy
@@ -147,7 +145,6 @@ for (0..9) {
 }
 is( $Bar::count, 10 );
 
-
 ##
 ## Test objects that use Object::Destroy in their constructors
 ##
@@ -157,6 +154,8 @@ is( $Buzz::count, 0 );
 	is( $Buzz::count, 1 );
 }
 is( $Buzz::count, 0 );
+
+
 
 
 
@@ -170,7 +169,6 @@ BEGIN { $destroy_counter = 0 }
 
 sub new {
 	my $class = shift;
-	
 	my $self = {};
 	$self->{self} = $self; ## circular reference
 	return bless $self, ref $class || $class;
@@ -178,21 +176,18 @@ sub new {
 
 sub delete{
 	my $self = shift;
-	
 	undef $self->{self};
 	push @called_method, 'delete';
 }
 
 sub release { 
 	my $self = shift;
-	
 	undef $self->{self};
 	push @called_method, 'release';
 }
 
 sub DESTROY { 
 	my $self = shift;
-
 	$destroy_counter++;
 	undef $self->{self};
 	push @called_method, 'DESTROY';

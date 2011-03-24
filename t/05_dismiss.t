@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 ##
 ## Test for wrapping abilities of Object::Destroyer
@@ -11,15 +11,15 @@ BEGIN {
 }
 
 use Test::More tests => 8;
-use Object::Destroyer 2.00;
+use Object::Destroyer 2.01;
 
 
-{
+SCOPE: {
     my $foo = Foo->new;
 }
 is($Foo::destroy_counter, 0, 'Foo must not be destroyed');
 
-{
+SCOPE: {
     my $foo = Foo->new;
     my $sentry = Object::Destroyer->new($foo, 'release');
     is($Foo::destroy_counter, 0, 'Pre-check');
@@ -28,7 +28,7 @@ is($Foo::destroy_counter, 0, 'Foo must not be destroyed');
 is($Foo::destroy_counter, 1, 'Foo must be destroyed');
 
 $Foo::destroy_counter = 0;
-{
+SCOPE: {
     my $foo = Foo->new;
     my $sentry = Object::Destroyer->new($foo, 'release');
     is($Foo::destroy_counter, 0, 'Pre-check');
@@ -37,6 +37,9 @@ $Foo::destroy_counter = 0;
     ok( $sentry->self_test, 'Wrapper is still ok');
 }
 is($Foo::destroy_counter, 0, 'Foo must not ve destroyed');
+
+
+
 
 
 #####################################################################
@@ -67,4 +70,3 @@ sub release{
     my $self = shift;
     undef $self->{self};
 }
-

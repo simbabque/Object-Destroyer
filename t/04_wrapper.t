@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/perl
 
 ##
 ## Test for wrapping abilities of Object::Destroyer
@@ -11,7 +11,7 @@ BEGIN {
 }
 
 use Test::More tests => 34;
-use Object::Destroyer 2.00;
+use Object::Destroyer 2.01;
 
 my $foo = Foo->new;
 my $sentry = Object::Destroyer->new($foo, 'release');
