@@ -2,7 +2,7 @@ package Object::Destroyer;
 
 # See POD at end for details
 
-use 5.005;
+use 5.006;
 use strict;
 use Carp         ();
 ##use Scalar::Util ();

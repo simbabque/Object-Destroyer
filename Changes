@@ -2,6 +2,7 @@ Revision history for Perl extension Object::Destroyer
 
 2.01 Thu 24 Mar 2011
 	- Updating to Module::Install::DSL 1.00
+	- Bump perl version to 5.006 to keep the minimum version test happy
 
 2.00 Wed Dec  6 2006
 	- Added support for missing void context for wrapper
