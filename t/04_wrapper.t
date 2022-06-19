@@ -10,7 +10,7 @@ BEGIN {
     $^W = 1;
 }
 
-use Test::More tests => 34;
+use Test::More tests => 35;
 use Object::Destroyer 2.01;
 
 my $foo = Foo->new;
@@ -81,7 +81,11 @@ is( scalar($sentry->bar(3)), "barbarbar");
 is_deeply( [$sentry->bar], ["bar", "bar"]);
 is_deeply( [$sentry->foo(1)], ["foo"]);
 is_deeply( [$sentry->t(3)], [qw/t t t/]);
-
+eval {
+    $sentry->void;
+    return;
+};
+ok !$@, 'AUTOLOAD in void context works';
 
 
 #####################################################################

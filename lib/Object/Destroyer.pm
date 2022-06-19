@@ -100,6 +100,7 @@ sub AUTOLOAD {
             } else {
                 ## Void context
                 $object->$method(@_);
+                return;
             }
         } else {
             ##
@@ -425,9 +426,11 @@ Adam Kennedy E<lt>adamk@cpan.orgE<gt>
 
 Igor Gariev E<lt>gariev@hotmail.comE<gt>
 
+Julien Fiegehenn E<lt>simbabque@cpan.orgE<gt>
+
 =head1 COPYRIGHT
 
-Copyright 2004 - 2011 Adam Kennedy.
+Copyright 2004 - 2022 Adam Kennedy.
 
 This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
