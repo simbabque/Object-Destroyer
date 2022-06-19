@@ -113,17 +113,17 @@ sub params_count{
     return scalar(@_);
 }
 
-sub hello { 
-    shift; 
-    return (@_) ? "Hello $_[0]!" : "Hello World!" 
+sub hello {
+    shift;
+    return (@_) ? "Hello $_[0]!" : "Hello World!"
 }
 
-sub test_context{ 
-    return  (wantarray) ? (1, 2) : 
+sub test_context{
+    return  (wantarray) ? (1, 2) :
             (defined wantarray) ? -1 : ++$_;
 }
 
-sub DESTROY { 
+sub DESTROY {
     $destroy_counter++;
 }
 
@@ -145,11 +145,11 @@ use vars '$AUTOLOAD';
 sub AUTOLOAD{
     my $self = shift;
     my $repeat_number = shift || 2;
-    
+
     my ($method) = $AUTOLOAD =~ /.*::(.*)$/;
     return (wantarray) ?
         ($method) x $repeat_number :
-        $method   x $repeat_number; 
+        $method   x $repeat_number;
 }
 
 sub DESTROY{

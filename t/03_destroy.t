@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
 ##
-## Tests of main functionality of Object::Destroyer - 
+## Tests of main functionality of Object::Destroyer -
 ## i.e. destruction of objects - are here.
 ##
 
@@ -29,7 +29,7 @@ SCOPE: {
 
 SCOPE: {
 	##
-	## This $foo is destroyed manually 
+	## This $foo is destroyed manually
 	##
 	my $foo = Foo->new;
 	$foo->DESTROY;
@@ -180,13 +180,13 @@ sub delete{
 	push @called_method, 'delete';
 }
 
-sub release { 
+sub release {
 	my $self = shift;
 	undef $self->{self};
 	push @called_method, 'release';
 }
 
-sub DESTROY { 
+sub DESTROY {
 	my $self = shift;
 	$destroy_counter++;
 	undef $self->{self};
@@ -194,7 +194,7 @@ sub DESTROY {
 }
 
 ##
-## Object of class Bar has no clean-up method at all 
+## Object of class Bar has no clean-up method at all
 ##
 package Bar;
 use vars '$count';

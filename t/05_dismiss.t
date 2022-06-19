@@ -62,7 +62,7 @@ sub self_test{
     return $self==$self->{self};
 }
 
-sub DESTROY { 
+sub DESTROY {
     $destroy_counter++;
 }
 
