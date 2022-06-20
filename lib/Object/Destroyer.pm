@@ -8,7 +8,7 @@ use warnings;
 use Carp         ();
 ##use Scalar::Util ();
 
-our $VERSION = '2.02';
+our $VERSION = '2.03';
 
 if ( eval { require Scalar::Util } ) {
     Scalar::Util->import('blessed');
