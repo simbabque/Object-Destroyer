@@ -5,12 +5,9 @@
 ##
 
 use strict;
-BEGIN {
-    $|  = 1;
-    $^W = 1;
-}
+use warnings;
 
-use Test::More tests => 35;
+use Test::More;
 use Object::Destroyer 2.01;
 
 my $foo = Foo->new;
@@ -71,6 +68,40 @@ my $new = $sentry->new;
 is(ref $new, 'Foo');
 
 ##
+## Test that AUTOLOAD handles errors correctly
+##
+eval { $sentry->impossible };
+like(
+    $@,
+    qr/Can't locate object method "impossible"/,
+    'AUTOLOAD handles errors correctly'
+);
+
+eval {
+    $sentry->DESTROY;
+    $sentry->impossible;
+};
+like(
+    $@,
+    qr/Can't locate object to call method 'impossible'/,
+    'AUTOLOAD cannot find method after DESTROY'
+);
+
+$sentry = Object::Destroyer->new(sub { 123; });
+eval { $sentry->impossible };
+like(
+    $@,
+    qr/Can't locate object to call method 'impossible'/,
+    'AUTOLOAD cannot find method when there is no object'
+);
+
+isnt(
+    ref($sentry->can('foo')),
+    'CODE',
+    'can does not pass through without object'
+);
+
+##
 ## Test for AUTOLOAD'ed methods
 ##
 my $buzz = Buzz->new();
@@ -87,6 +118,8 @@ eval {
 };
 ok !$@, 'AUTOLOAD in void context works';
 
+
+done_testing;
 
 #####################################################################
 # Test Classes
