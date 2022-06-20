@@ -14,5 +14,5 @@ on 'runtime' => sub {
 };
 
 on 'test' => sub {
-    requires 'Test::More' => '0.42';
+    requires 'Test::More' => '0.88';
 };

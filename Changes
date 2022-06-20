@@ -1,6 +1,9 @@
 Revision history for Perl extension Object::Destroyer
 
 {{$NEXT}}
+	- Modernise test suite code
+	- Bump Test::More dependency to 0.88
+	- Fix croaking AUTOLOAD in void context (RT 30835)
 	- Move to github
 	- Move to Dist::Zilla
 

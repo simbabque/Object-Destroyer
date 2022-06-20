@@ -8,7 +8,7 @@ use strict;
 use warnings;
 
 use Test::More;
-use Object::Destroyer 2.01;
+use Object::Destroyer;
 
 my $foo = Foo->new;
 my $sentry = Object::Destroyer->new($foo, 'release');

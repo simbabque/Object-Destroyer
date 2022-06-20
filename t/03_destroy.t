@@ -6,12 +6,9 @@
 ##
 
 use strict;
-BEGIN {
-	$|  = 1;
-	$^W = 1;
-}
+use warnings;
 
-use Test::More tests => 31;
+use Test::More;
 use Object::Destroyer;
 
 ##
@@ -155,7 +152,7 @@ is( $Buzz::count, 0 );
 }
 is( $Buzz::count, 0 );
 
-
+done_testing;
 
 
 
