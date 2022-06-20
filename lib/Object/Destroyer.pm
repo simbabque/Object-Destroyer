@@ -231,8 +231,9 @@ destroy handle falls out of scope, it will be cleaned up correctly, and while
 being cleaned up, it will also force the data structure it is attached to to be
 destroyed as well.
 Object::Destroyer can call a specified release method on an object
-(or method DESTROY by default).
-Alternatively, it can execute an arbitrary user code passed to constructor as a code reference.
+(or method C<DESTROY> by default).
+Alternatively, it can execute an arbitrary user code passed to constructor as a
+code reference.
 
 =head2 Use as a Standalone Handle
 
@@ -266,7 +267,7 @@ the cirularly linked C<$Document> to be cleaned up at the same time, rather
 than being forced to manually call C<$Document-<gt>release> at each and every
 location that the sub could possible return.
 
-Using the Object::Destroy object to force garbage collection to work
+Using the Object::Destroyer object to force garbage collection to work
 properly allows you to neatly sidestep the inadequecies of the perl garbage
 collector and work the way you normally would, even with big objects.
 
@@ -349,7 +350,7 @@ working with a Object::Destroyer object, rather than the My::Tree object itself.
 
 To implement the transparency, there is a slight CPU penalty when a method is
 called on the wrapper to allow it to pass the method through to the encased
-object correctly, and without appearing in the caller() information. Once the
+object correctly, and without appearing in the C<caller()> information. Once the
 method is called on the underlying object, you can make further method calls
 with no penalty and access the internals of the object normally.
 
@@ -385,10 +386,10 @@ The constructor will die if the object passed to it does not have the specified 
   $sentry->DESTROY;
   undef $sentry;
 
-If you wish, you may explicitly DESTROY the Destroyer at any time you wish.
-This will also DESTROY the encased object at the same. This can allow for
+You may explicitly C<DESTROY> the Destroyer at any time you wish.
+This will also C<DESTROY> the encased object at the same. This can allow for
 legacy cases relating to Wrappers, where a user expects to have to manually
-DESTROY an object even though it is not needed. The DESTROY call will be
+C<DESTROY> an object even though it is not needed. The C<DESTROY> call will be
 accepted and dealt with as it is called on the encased object.
 
 =item dismiss
@@ -402,7 +403,7 @@ its job, dismiss it. You may continue to use it as a wrapper, though.
 
 =head1 SEE ALSO
 
-Another option for dealing with circular references are C<weak references>
+Another option for dealing with circular references are I<weak references>
 (stable since Perl 5.8.0, see L<Scalar::Util>). See also L<GTop::Mem>
 and L<Devel::Monitor> for monitoring memory leaks.
 The latter module contains a discussion on object desing with weak references.
@@ -410,21 +411,36 @@ The latter module contains a discussion on object desing with weak references.
 For lexically scoped resource management, see also L<Scope::Guard>,
 L<Sub::ScopeFinalizer> and L<Hook::Scope>.
 
+=head1 KNOWN ISSUES
+
+There is a compatibility issue with L<Test::MockObject::Extends>. You cannot
+extend an object wrapped by Object::Destroyer because our custom C<can> method
+needs to be called on an instance, but Test::MockObject::Extends calls it on
+the class, and will error.
+
 =head1 SUPPORT
 
-Bugs should be reported via the CPAN bug tracker at
+Bugs and other issues should be reported via GitHub at
 
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Object-Destroyer>
-
-For other issues, or commercial enhancement or support, contact the Adam Kennedy.
+L<https://github.com/simbabque/Object-Destroyer/issues>.
 
 =head1 AUTHORS
 
+=over 4
+
+=item *
+
 Adam Kennedy E<lt>adamk@cpan.orgE<gt>
+
+=item *
 
 Igor Gariev E<lt>gariev@hotmail.comE<gt>
 
+=item *
+
 Julien Fiegehenn E<lt>simbabque@cpan.orgE<gt>
+
+=back
 
 =head1 COPYRIGHT
 
