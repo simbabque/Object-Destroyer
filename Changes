@@ -1,6 +1,6 @@
 Revision history for Perl extension Object::Destroyer
 
-{{$NEXT}}
+2.02      2022-06-20 12:45:01Z
 	- Turn on warnings
 	- Modernise test suite code
 	- Bump Test::More dependency to 0.88
