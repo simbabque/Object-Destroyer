@@ -222,15 +222,15 @@ references.
 In practical terms, this means that object trees in lexically scoped
 variable ( e.g. C<my $Object = Tree-E<gt>new> ) will not be cleaned up when
 they fall out of scope, like normal variables. This results in a memory leak
-for the life of the process, which is a bad thing when using mod_perl or
+for the life of the process, which is a bad thing when using C<mod_perl> or
 other processes that live for a long time.
 
-Object::Destroyer allows for the creation of "Destroy" handles. The handle is
+C<Object::Destroyer> allows for the creation of "Destroy" handles. The handle is
 "attached" to the circular relationship, but is not a part of it. When the
 destroy handle falls out of scope, it will be cleaned up correctly, and while
 being cleaned up, it will also force the data structure it is attached to to be
 destroyed as well.
-Object::Destroyer can call a specified release method on an object
+C<Object::Destroyer> can call a specified release method on an object
 (or method C<DESTROY> by default).
 Alternatively, it can execute an arbitrary user code passed to constructor as a
 code reference.
@@ -258,16 +258,16 @@ the object to be destroyed)
     $document->change_author($me);
     $document->save;
 
-    # We don't have to $Document->DESTROY here
+    # We don't have to $document->DESTROY here
     return 1;
   }
 
 When the C<$sentry> falls out of scope at the end of the sub, it will force
-the cirularly linked C<$Document> to be cleaned up at the same time, rather
-than being forced to manually call C<$Document-<gt>release> at each and every
+the cirularly linked C<$document> to be cleaned up at the same time, rather
+than being forced to manually call C<$document-E<gt>release> at each and every
 location that the sub could possible return.
 
-Using the Object::Destroyer object to force garbage collection to work
+Using the C<Object::Destroyer> object to force garbage collection to work
 properly allows you to neatly sidestep the inadequecies of the perl garbage
 collector and work the way you normally would, even with big objects.
 
@@ -344,7 +344,7 @@ We might use the class in something like this
   }
 
 We were able to work with the data, and at no point did we know that we were
-working with a Object::Destroyer object, rather than the My::Tree object itself.
+working with a C<Object::Destroyer> object, rather than the C<My::Tree> object itself.
 
 =head2 Resource Usage
 
@@ -362,8 +362,8 @@ not the class of the object inside it.
 
 Likewise, calling C<UNIVERSAL::isa( $wrapper, 'My::Tree' )> or
 C<UNIVERSAL::can( $wrapper, 'param' )> directly as functions will also not work.
-The two alternatives to this are to either use C<$Wrapper-E<gt>isa> or
-C<$wrapper-E<gt>can>, which will be caught and treated normally, or simple
+The two alternatives to this are to either use C<$wrapper-E<gt>isa> or
+C<$wrapper-E<gt>can>, which will be caught and treated normally, or simply
 don't use a wrapper and just use the standalone cleaners.
 
 =head1 METHODS
@@ -396,7 +396,7 @@ accepted and dealt with as it is called on the encased object.
 
   $sentry->dismiss;
 
-If you have changed your mind and you don't want Destroyer object to do
+If you have changed your mind and you don't want the C<Object::Destroyer> object to do
 its job, dismiss it. You may continue to use it as a wrapper, though.
 
 =back
@@ -414,8 +414,8 @@ L<Sub::ScopeFinalizer> and L<Hook::Scope>.
 =head1 KNOWN ISSUES
 
 There is a compatibility issue with L<Test::MockObject::Extends>. You cannot
-extend an object wrapped by Object::Destroyer because our custom C<can> method
-needs to be called on an instance, but Test::MockObject::Extends calls it on
+extend an object wrapped by C<Object::Destroyer> because our custom C<can> method
+needs to be called on an instance, but C<Test::MockObject::Extends> calls it on
 the class, and will error.
 
 =head1 SUPPORT
